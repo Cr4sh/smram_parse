@@ -8,7 +8,7 @@ For more information about this project please read the following article:
 http://blog.cr4.sh/2016/10/exploiting-ami-aptio-firmware.html
 
 
-To use full capabilities of this tool you need to install UEFIDump (https://github.com/LongSoft/UEFITool/releases/tag/A32), ida-efiutils (https://github.com/snare/ida-efiutils) and edit corresponding variables below.
+To use full capabilities of this tool you need to install UEFIDump (https://github.com/LongSoft/UEFITool/releases/tag/A32), ida-efiutils (https://github.com/snare/ida-efiutils) and edit corresponding variables in smram_parse.py code.
 
 This tool was tested only with 6 generation Intel NUC firmware based on AMI Aptio V code base.
 
