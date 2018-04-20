@@ -28,7 +28,7 @@ USAGE:
 
   $ smram_parse.py <SMRAM_dump> [flash_image_dump]
 
-  Output example: http://www.everfall.com/paste/id.php?rv25o7tult4a
+  Output example: https://raw.githubusercontent.com/Cr4sh/smram_parse/master/EXAMPLE.TXT
 
 
 Written by:

@@ -1,0 +1,190 @@
+$ ./smram_parse.py SMRAM.bin flash_image.bin
+
+[+] Copying "flash_image.bin" to "fw_image_1524198678"...
+[+] Unpacking "fw_image_1524198678"...
+
+parseMeRegion: ME region is empty
+parseSections: non-UEFI data found in sections area
+parsePadFileBody: non-UEFI data found in pad-file
+findFitRecursive: real FIT table found at physical address FFA80100h
+-------------------------------------------------------------------
+     Address     |   Size    |  Ver  | CS  |         Type
+-------------------------------------------------------------------
+_FIT_            | 00000030h | 0100h | 00h | FIT Header
+00000000FFA80280 | 00000000h | 0100h | 00h | Microcode
+00000000FFA97A80 | 00000000h | 0100h | 00h | Microcode
+
+[+] SMRAM is at 0x8b400000:8bbfffff
+[+] EFI_SMM_SYSTEM_TABLE2 is at 0x8b7fa730
+
+SMI ENTRIES:
+
+CPU 0: 0x8b7d5000
+CPU 1: 0x8b7d5800
+CPU 2: 0x8b7d6000
+CPU 3: 0x8b7d6800
+
+LOADED SMM DRIVERS:
+
+0x8b6b9000: size = 0x00005f20, ep = 0x8b6b9b70, name = PchInitSmm
+0x8b6c0000: size = 0x00002600, ep = 0x8b6c05c0, name = PowerMgmtSmm
+0x8b6c3000: size = 0x00015440, ep = 0x8b6c3300, name = BiosGuardServices
+0x8b6d9000: size = 0x00001260, ep = 0x8b6d9840, name = NvramSmi
+0x8b6db000: size = 0x00002420, ep = 0x8b6db850, name = RtcWakeup
+0x8b6df000: size = 0x00002960, ep = 0x8b6df840, name = OemSmi
+0x8b6e2000: size = 0x00006d60, ep = 0x8b6e3850, name = ItkSmmVars
+0x8b6e9000: size = 0x00001880, ep = 0x8b6e9b80, name = CrbSmi
+0x8b6eb000: size = 0x00018980, ep = 0x8b6ebf80, name = UsbRt
+0x8b704000: size = 0x00001880, ep = 0x8b704340, name = TcgSmm
+0x8b706000: size = 0x00002300, ep = 0x8b706870, name = SdioSmm
+0x8b71c000: size = 0x00002500, ep = 0x8b71c330, name = NvmeSmm
+0x8b71f000: size = 0x00004860, ep = 0x8b71fa10, name = KbcEmul
+0x8b724000: size = 0x00002640, ep = 0x8b7248c0, name = SmmHddSecurity
+0x8b728000: size = 0x00003700, ep = 0x8b728d10, name = CmosSmm
+0x8b72c000: size = 0x00001380, ep = 0x8b72c850, name = BootScriptHideSmm
+0x8b72e000: size = 0x00006f80, ep = 0x8b72e430, name = SaLateInitSmm
+0x8b735000: size = 0x00001840, ep = 0x8b735b50, name = PttWrapper
+0x8b737000: size = 0x00004b00, ep = 0x8b737bd0, name = SmmPlatform
+0x8b73c000: size = 0x000009c0, ep = 0x8b73c2a0, name = SmramSaveInfoHandlerSmm
+0x8b73e000: size = 0x00001dc0, ep = 0x8b73eba0, name = AcpiModeEnable
+0x8b740000: size = 0x00001100, ep = 0x8b740800, name = TcoSmi
+0x8b742000: size = 0x00004800, ep = 0x8b742bb0, name = SleepSmi
+0x8b747000: size = 0x000049a0, ep = 0x8b747bb0, name = PowerButton
+0x8b74d000: size = 0x00003820, ep = 0x8b74dcc0, name = NbSmi
+0x8b751000: size = 0x00000ba0, ep = 0x8b751360, name = PiSmmCommunicationSmm
+0x8b76a000: size = 0x00001780, ep = 0x8b76aa40, name = CpuSpSMI
+0x8b76d000: size = 0x00007d40, ep = 0x8b76f0c0, name = PchSmiDispatcher
+0x8b775000: size = 0x00004b60, ep = 0x8b7761d0, name = FlashSmiSmm
+0x8b77a000: size = 0x00001340, ep = 0x8b77a2c0, name = PchSpiSmm
+0x8b77c000: size = 0x00002dc0, ep = 0x8b77cbe0, name = SbRunSmm
+0x8b77f000: size = 0x00000ae0, ep = 0x8b77f290, name = SmmExceptionInfo
+0x8b780000: size = 0x0000f2a0, ep = 0x8b782390, name = NVRAMSmm
+0x8b790000: size = 0x00000fa0, ep = 0x8b7902d0, name = SmmLockBox
+0x8b791000: size = 0x00001060, ep = 0x8b791810, name = RuntimeSmm
+0x8b793000: size = 0x000033c0, ep = 0x8b7939f0, name = S3SaveSmm
+0x8b7a5000: size = 0x0000e400, ep = 0x8b7a5d10, name = CryptoSMM
+0x8b7b4000: size = 0x00002920, ep = 0x8b7b4800, name = AhciSmm
+0x8b7b7000: size = 0x00001060, ep = 0x8b7b7270, name = PchSmbusSmm
+0x8b7df000: size = 0x00006d20, ep = 0x8b7e0d90, name = PiSmmCpuDxeSmm
+0x8b7e6000: size = 0x000009a0, ep = 0x8b7e62b0, name = CpuIo2Smm
+0x8b7e8000: size = 0x00005780, ep = 0x8b7e8da0, name = FlashDriverSmm
+0x8b7f0000: size = 0x00005300, ep = 0x8b7f1520, name = StatusCodeSmm
+0x8b7fa000: size = 0x000055a0, ep = 0x8b7fa8d0, name = PiSmmCore
+
+[+] Found prte structure at offset 0x2b5f90
+
+SMM PROTOCOLS:
+
+0x8b7f6390: addr = 0x8b7f0ef0, image = StatusCodeSmm, guid = 441FFA18-8714-421E-8C95587080796FEE
+0x8b7f6290: addr = 0x8b7f0ee0, image = StatusCodeSmm, guid = EFI_SMM_RSC_HANDLER_PROTOCOL
+0x8b7f6190: addr = 0x8b7f0f00, image = StatusCodeSmm, guid = EFI_SMM_STATUS_CODE_PROTOCOL
+0x8b7e7990: addr = 0x8b7e89e8, image = FlashDriverSmm, guid = FLASH_SMM_PROTOCOL
+0x8b7e7890: addr = 0x8b7e6280, image = CpuIo2Smm, guid = EFI_SMM_CPU_IO2_PROTOCOL
+0x8b7e7610: addr = 0x8b7e07a0, image = PiSmmCpuDxeSmm, guid = EFI_SMM_CPU_PROTOCOL
+0x8b7e7510: addr = 0x8b7e07b0, image = PiSmmCpuDxeSmm, guid = SMM_CPU_SYNC_PROTOCOL
+0x8b7e7410: addr = 0x8b7e07c8, image = PiSmmCpuDxeSmm, guid = SMM_CPU_SYNC2_PROTOCOL
+0x8b7e7310: addr = 0x8b7df5a0, image = PiSmmCpuDxeSmm, guid = EFI_SMM_CPU_SERVICE_PROTOCOL
+0x8b7e7090: addr = 0x8b7e7140, image = CpuIo2Smm, guid = AMI_SMBUS_SMM_PROTOCOL
+0x8b797f90: addr = 0x8b7a5928, image = CryptoSMM, guid = AMI_SMM_DIGITAL_SIGNATURE_PROTOCOL
+0x8b797e10: addr = 0x8b793980, image = S3SaveSmm, guid = EFI_S3_SMM_SAVE_STATE_PROTOCOL
+0x8b797910: addr = 0x8b797820, image = S3SaveSmm, guid = PCH_SPI_PROTOCOL
+0x8b797510: addr = 0x8b76d478, image = PchSmiDispatcher, guid = EFI_SMM_USB_DISPATCH2_PROTOCOL
+0x8b797410: addr = 0x8b76d4b0, image = PchSmiDispatcher, guid = EFI_SMM_SX_DISPATCH2_PROTOCOL
+0x8b797310: addr = 0x8b76d4e8, image = PchSmiDispatcher, guid = EFI_SMM_SW_DISPATCH2_PROTOCOL
+0x8b797210: addr = 0x8b76d520, image = PchSmiDispatcher, guid = EFI_SMM_GPI_DISPATCH2_PROTOCOL
+0x8b797110: addr = 0x8b76d558, image = PchSmiDispatcher, guid = EFI_SMM_POWER_BUTTON_DISPATCH2_PROTOCOL
+0x8b797010: addr = 0x8b76d590, image = PchSmiDispatcher, guid = EFI_SMM_PERIODIC_TIMER_DISPATCH2_PROTOCOL
+0x8b76cf10: addr = 0x8b76e340, image = PchSmiDispatcher, guid = PCH_TCO_SMI_DISPATCH_PROTOCOL
+0x8b76cd90: addr = 0x8b76e390, image = PchSmiDispatcher, guid = PCH_PCIE_SMI_DISPATCH_PROTOCOL
+0x8b76cc90: addr = 0x8b76e3b8, image = PchSmiDispatcher, guid = PCH_ACPI_SMI_DISPATCH_PROTOCOL
+0x8b76cb90: addr = 0x8b76e3e8, image = PchSmiDispatcher, guid = PCH_GPIO_UNLOCK_SMI_DISPATCH_PROTOCOL
+0x8b76ca90: addr = 0x8b76e400, image = PchSmiDispatcher, guid = E6A81BBF-873D-47FD-B6BE61B3E5720993
+0x8b76c990: addr = 0x8b7745b0, image = PchSmiDispatcher, guid = EFI_SMM_IO_TRAP_DISPATCH2_PROTOCOL
+0x8b76c890: addr = 0x8b774608, image = PchSmiDispatcher, guid = PCH_SMM_IO_TRAP_CONTROL_PROTOCOL
+0x8b76c790: addr = 0x8b76e7b0, image = PchSmiDispatcher, guid = PCH_ESPI_SMI_DISPATCH_PROTOCOL
+0x8b76c610: addr = 0x8b76e6a0, image = PchSmiDispatcher, guid = 6906E93B-603B-4A0F-8692832004AAF2DB
+0x8b74c310: addr = 0x8b73eb58, image = AcpiModeEnable, guid = EFI_ACPI_EN_DISPATCH_PROTOCOL
+0x8b74c110: addr = 0x8b73eb68, image = AcpiModeEnable, guid = EFI_ACPI_DIS_DISPATCH_PROTOCOL
+0x8b73dc90: addr = 0x8b73df60, image = SmramSaveInfoHandlerSmm, guid = EFI_EC_ACCESS_PROTOCOL
+0x8b73d690: addr = 0x8b736760, image = PttWrapper, guid = EFI_SMM_VARIABLE_PROTOCOL
+0x8b727f90: addr = 0x8b73d010, image = SmramSaveInfoHandlerSmm, guid = EFI_SMM_CMOS_ACCESS
+0x8b727690: addr = 0x8b723210, image = KbcEmul, guid = EFI_EMUL6064MSINPUT_PROTOCOL
+0x8b727590: addr = 0x8b723280, image = KbcEmul, guid = EFI_EMUL6064KBDINPUT_PROTOCOL
+0x8b727390: addr = 0x8b71f998, image = KbcEmul, guid = EFI_EMUL6064TRAP_PROTOCOL
+0x8b727010: addr = 0x8b71e290, image = NvmeSmm, guid = B91547F5-4D24-4EEF-850774DDABEB71AD
+0x8b709a10: addr = 0x8b702408, image = UsbRt, guid = AMI_USB_SMM_PROTOCOL
+
+[+] Found DBRC structure at offset 0x2bf110
+
+SW SMI HANDLERS:
+
+0x8b76c410: SMI = 0x56, addr = 0x8b76ab1c, image = CpuSpSMI
+0x8b76c310: SMI = 0x57, addr = 0x8b76ac90, image = CpuSpSMI
+0x8b76c110: SMI = 0x01, addr = 0x8b75153c, image = PiSmmCommunicationSmm
+0x8b76c010: SMI = 0xb0, addr = 0x8b74ded4, image = NbSmi *
+0x8b74c210: SMI = 0xa0, addr = 0x8b73ef80, image = AcpiModeEnable
+0x8b74c010: SMI = 0xa1, addr = 0x8b73f06c, image = AcpiModeEnable
+0x8b73dd10: SMI = 0x55, addr = 0x8b73c4f0, image = SmramSaveInfoHandlerSmm
+0x8b73d310: SMI = 0xd6, addr = 0x8b72c990, image = BootScriptHideSmm
+0x8b73d210: SMI = 0xd7, addr = 0x8b72cb20, image = BootScriptHideSmm
+0x8b727e10: SMI = 0x61, addr = 0x8b729014, image = CmosSmm
+0x8b727a10: SMI = 0xd1, addr = 0x8b72523c, image = SmmHddSecurity
+0x8b727910: SMI = 0xd3, addr = 0x8b725528, image = SmmHddSecurity
+0x8b727110: SMI = 0x42, addr = 0x8b71ce40, image = NvmeSmm
+0x8b709d10: SMI = 0x40, addr = 0x8b706c94, image = SdioSmm
+0x8b709b10: SMI = 0x35, addr = 0x8b705100, image = TcgSmm
+0x8b709810: SMI = 0x31, addr = 0x8b6ecb7c, image = UsbRt
+0x8b709510: SMI = 0xbf, addr = 0x8b6e9d94, image = CrbSmi
+0x8b709210: SMI = 0xef, addr = 0x8b6e4d90, image = ItkSmmVars *
+0x8b709110: SMI = 0x44, addr = 0x8b6e4d90, image = ItkSmmVars *
+0x8b6de210: SMI = 0x59, addr = 0x8b6c0ee8, image = PowerMgmtSmm
+0x8b6bff10: SMI = 0x27, addr = 0x8b6c0c2c, image = PowerMgmtSmm
+0x8b6bfe10: SMI = 0x28, addr = 0x8b6c0dac, image = PowerMgmtSmm
+
+[+] Found smih structure of root SMI handler at offset 0x2de510
+
+ROOT SMI HANDLERS:
+
+0x8b6de510: addr = 0x8b6c0ae8, image = PowerMgmtSmm
+0x8b797750: addr = 0x8b76fbdc, image = PchSmiDispatcher
+0x8b76c550: addr = 0x8b74e040, image = NbSmi
+
+[+] Found smie structure at offset 0x2de790
+
+SMI HANDLERS:
+
+0x8b6de790: guid = 29C31B9F-D2B9-4900-BD2A584F2912E386
+0x8b709710: addr = 0x8b6d991c, image = NvramSmi
+
+0x8b7f9d90: guid = EFI_END_OF_DXE_EVENT_GROUP
+0x8b7f9e50: addr = 0x8b7fab8c, image = PiSmmCore
+
+0x8b797b90: guid = EFI_SMM_LOCK_BOX_COMMUNICATION
+0x8b797e90: addr = 0x8b790648, image = SmmLockBox
+
+0x8b727c90: guid = EEDCF975-4DD3-4D94-96FFAACA8353B87B
+0x8b73d590: addr = 0x8b7250a4, image = SmmHddSecurity
+
+0x8b727b90: guid = C2B1E795-F9C5-4829-8A42C0B3FE571517
+0x8b727c50: addr = 0x8b72544c, image = SmmHddSecurity
+
+0x8b727b10: guid = 60B0760C-7D1B-43F3-95256077BE4137E2
+0x8b727c10: addr = 0x8b72558c, image = SmmHddSecurity
+
+0x8b727810: guid = 3FB7E17F-1172-4E2A-9A25BA5FE62CC7C8
+0x8b7278d0: addr = 0x8b7255cc, image = SmmHddSecurity
+
+0x8b727790: guid = B3F096E9-2D46-4E8E-A22C7DE8B16B3A5B
+0x8b727890: addr = 0x8b725664, image = SmmHddSecurity
+
+0x8b727090: guid = EC2BD1FD-E3B0-429B-ADDF9657935A3684
+0x8b727290: addr = 0x8b71cb94, image = NvmeSmm
+
+0x8b709e10: guid = 17D6D323-43CE-438A-BC9578A2DE9919D7
+0x8b709f10: addr = 0x8b706a1c, image = SdioSmm
+
+
+NOTES:
+
+ * - SW SMI handler uses ReadSaveState()/WriteSaveState()
+
