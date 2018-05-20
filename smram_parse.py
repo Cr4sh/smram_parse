@@ -187,7 +187,7 @@ class GuidDb(object):
 class Dumper(object):
 
     # helper functions for SMRAM dump
-    in_smram = lambda self, addr: addr >= self.smram and addr < self.smram + SMRAM_SIZE
+    in_smram = lambda self, addr: addr >= self.smram and addr < self.smram + self.smram_size
     to_offset = lambda self, addr: addr - self.smram
     from_offset = lambda self, offset: offset + self.smram        
 
@@ -195,7 +195,7 @@ class Dumper(object):
                                                   self.to_offset(addr) + self.image_size(addr)].find(guid) \
                                                   != -1
 
-    def __init__(self, smram_dump, fw_image = None):
+    def __init__(self, smram_dump, fw_image = None, smram_base = None, smram_size = None):
 
         self.data = open(smram_dump, 'rb').read()  
 
@@ -204,10 +204,24 @@ class Dumper(object):
 
         # load EFI_GUID database
         self.guids = GuidDb(guids = GUIDs)
-        
-        self.smram = unpack('Q', self.data[0x10 : 0x18])[0] & 0xff400000    
 
-        print('[+] SMRAM is at 0x%x:%x' % (self.smram, self.smram + SMRAM_SIZE - 1)) 
+        if smram_base is None:
+        
+            self.smram = unpack('Q', self.data[0x10 : 0x18])[0] & 0xff400000    
+
+        else:
+
+            self.smram = smram_base
+
+        if smram_size is None:
+
+            self.smram_size = SMRAM_SIZE
+
+        else:
+
+            self.smram_size = smram_size
+
+        print('[+] SMRAM is at 0x%x:%x' % (self.smram, self.smram + self.smram_size - 1)) 
 
     # get image base by address inside of it
     def image_by_addr(self, addr):
@@ -316,7 +330,7 @@ class Dumper(object):
         first_entry, ptr = None, 0
         parse = lambda offset: unpack('QQ16sQ', self.data[offset : offset + 0x28])
 
-        while ptr < SMRAM_SIZE - 0x100:
+        while ptr < self.smram_size - 0x100:
 
             # check for 'prte' signature
             if self.data[ptr : ptr + 4] == 'prte':
@@ -388,7 +402,7 @@ class Dumper(object):
         parse = lambda offset: unpack(format, 
                                self.data[offset : offset + format_offs + (5 * 8)])
 
-        while ptr < SMRAM_SIZE - 0x100:
+        while ptr < self.smram_size - 0x100:
 
             # check for 'DBRC' signature
             if self.data[ptr : ptr + 4] == 'DBRC':
@@ -499,7 +513,7 @@ class Dumper(object):
         first_entry, ptr = None, 0
         parse = lambda offset: unpack('QQ16sQQ', self.data[offset : offset + 0x30])    
 
-        while ptr < SMRAM_SIZE - 0x100:
+        while ptr < self.smram_size - 0x100:
 
             # check for 'smie' signature
             if self.data[ptr : ptr + 4] == 'smie':
@@ -558,7 +572,7 @@ class Dumper(object):
         first_entry, ptr = None, 0
         parse = lambda offset: unpack('QQQQ', self.data[offset : offset + 0x20])    
 
-        while ptr < SMRAM_SIZE - 0x100:
+        while ptr < self.smram_size - 0x100:
 
             # check for 'smie' signature
             if self.data[ptr : ptr + 4] == 'smih':
@@ -589,11 +603,13 @@ def main():
 
     if len(sys.argv) <= 1:
 
-        print('USAGE: ami_smi_dump.py <SMRAM_dump> [flash_image_dump]')
+        print('USAGE: smram_parse.py <SMRAM_dump> [flash_image_dump [SMRAM_base [SMRAM_size]]]')
         return 0
 
     d = Dumper(sys.argv[1], \
-               sys.argv[2] if len(sys.argv) > 2 else None)
+               fw_image = sys.argv[2] if len(sys.argv) > 2 else None,
+               smram_base = int(sys.argv[3], 16) if len(sys.argv) > 3 else None,
+               smram_size = int(sys.argv[4], 16) if len(sys.argv) > 4 else None)
 
     d.dump_smst()
 
