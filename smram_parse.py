@@ -1,14 +1,15 @@
 import sys, os, time, re, shutil
 from struct import unpack
+from optparse import OptionParser, make_option
 
 SMRAM_SIZE = 0x800000
 
 EFI_SMM_CPU_PROTOCOL_GUID = '\x97\x6B\x34\xEB\x5F\x97\x9F\x4A\x8B\x22\xF8\xE9\x2B\xB3\xD5\x69'
 
-UEFIDUMP_PATH = '/Users/d_olex/_tmp/UEFIDump'
-UEFIDUMP_URL = 'https://github.com/LongSoft/UEFITool/releases/tag/NE.A30'
+UEFIDUMP_PATH = './UEFIDump'
+UEFIDUMP_URL = 'https://github.com/LongSoft/UEFITool/releases/tag/A50'
 
-EFIUTILS_PATH = '/Users/d_olex/ida-efiutils'
+EFIUTILS_PATH = 'ida-efiutils'
 EFIUTILS_URL = 'https://github.com/snare/ida-efiutils'
 
 sys.path.append(EFIUTILS_PATH)
@@ -70,7 +71,7 @@ class FwImage(object):
         for fname in os.listdir(path):
 
             # check for PE image file
-            m = re.match('Section_PE32_image_\w{8}_\w{4}_\w{4}_\w{4}_\w{12}_(\w+)_body.bin', fname)
+            m = re.match('Section_PE32_image_\w{8}-\w{4}-\w{4}-\w{4}-\w{12}_(\w+)_body.bin', fname)
             if m:                
 
                 image_name = m.group(1).strip()
@@ -206,7 +207,7 @@ class Dumper(object):
         self.guids = GuidDb(guids = GUIDs)
 
         if smram_base is None:
-        
+            # depricated; base address is now a required parameter
             self.smram = unpack('Q', self.data[0x10 : 0x18])[0] & 0xff400000    
 
         else:
@@ -254,9 +255,11 @@ class Dumper(object):
 
     def image_name(self, addr):
 
-        offset = self.to_offset(addr)
-
-        return self.fw.image_name(self.data[offset : offset + HEADERS_SIZE])  
+        if addr == None:
+            return None
+        else:
+          offset = self.to_offset(addr)
+          return self.fw.image_name(self.data[offset : offset + HEADERS_SIZE])  
 
     def dump_smst(self):
 
@@ -383,7 +386,7 @@ class Dumper(object):
                     # get image information
                     image = self.image_by_addr(addr)
                     image_name = self.image_name(image)
-                    image_name = image_name if image_name is not None else '0x%X' % image
+                    image_name = image_name if image_name is not None else '0x%X' % addr
 
                     print('0x%x: addr = 0x%x, image = %s, guid = %s' % \
                           (self.from_offset(entry), addr, _align(image_name),
@@ -392,8 +395,7 @@ class Dumper(object):
             entry = self.to_offset(flink) - 8
             if entry == first_entry: break
 
-    def dump_sw_smi_handlers(self):  
-
+    def dump_dbrc_handlers(self):
         first_entry, ptr = None, 0
 
         default_offs = 0x10
@@ -412,7 +414,7 @@ class Dumper(object):
                 # check for valid EFI_LIST_ENTRY and SW SMI handler
                 if self.in_smram(flink) and self.in_smram(blink):
 
-                    print('\n[+] Found DBRC structure at offset 0x%x' % ptr)
+                    print('\n[+] Found DBRC structure at offset 0x%x\n' % ptr)
 
                     first_entry = ptr
                     break
@@ -423,8 +425,6 @@ class Dumper(object):
 
             print('\nERROR: Unable to find DBRC entry')
             return -1 
-
-        print('\nSW SMI HANDLERS:\n')
 
         entry = first_entry
         known_handlers = []
@@ -486,6 +486,76 @@ class Dumper(object):
 
             entry = self.to_offset(flink) - 8
             if entry == first_entry: break
+        return len(known_handlers)
+
+    def dump_swsm_handlers(self):
+        parse = lambda offset: unpack('QQQQ', 
+                               self.data[offset : offset + ((4*8))])
+
+        ptr = 0
+        while ptr < self.smram_size - 0x100:
+          
+            # check for 'SWSM' signature
+            if self.data[ptr : ptr + 4] == 'SWSM':
+
+                flink, blink, code, func = parse(ptr + 8)
+
+                # check for valid EFI_LIST_ENTRY and SW SMI handler
+                if self.in_smram(flink) and self.in_smram(blink):
+
+                    print('\n[+] Found SWSM structure at offset 0x%x\n' % ptr)
+
+                    first_entry = ptr
+                    break
+
+            ptr += 8
+
+        if first_entry is None:
+
+            print('\nERROR: Unable to find SWSM entry')
+            return -1 
+
+        entry = first_entry
+        known_handlers = []
+
+        while True:
+            flink, blink, code, func = parse(entry + 8)
+            # check for SW SMI handler information
+            if self.in_smram(func) and code >= 0 and code <= 255:    
+                if entry not in known_handlers:
+                    # get image information
+                    image = self.image_by_addr(func)
+                    image_name = self.image_name(image)
+                    uses_cpu_prot = self.has_guid(image, EFI_SMM_CPU_PROTOCOL_GUID)
+
+                    print('0x%x: SMI = 0x%.2x, addr = 0x%x, image = %s %s' % \
+                          (self.from_offset(entry), code, func, \
+                          _align(image_name if image_name is not None else '0x%x' % image), \
+                          '*' if uses_cpu_prot else ''))
+                    known_handlers.append(entry)
+
+        
+            entry = self.to_offset(flink) - 8
+      
+            if entry == first_entry: 
+                break
+        return len(known_handlers)
+
+    def dump_sw_smi_handlers(self):
+        print('\nSW SMI HANDLERS:')
+
+        try:
+            dbrc = self.dump_dbrc_handlers()
+
+            # unreliable check to determine if we should try again with a different swsmi struct
+            if dbrc < 2:
+                print('\n[!] SW SMI function count lower than expected, attempting to reparse with alternative structure...')
+                return self.dump_swsm_handlers()
+            else:
+                return dbrc
+        except Exception as ex:
+            print('[-] Error parsing SW SMI handler list; is the SMRAM base address correct?\n')
+            exit(1)
 
     def _dump_handlers(self, head):
 
@@ -601,15 +671,35 @@ class Dumper(object):
 
 def main():
 
-    if len(sys.argv) <= 1:
+    usage = "usage: %prog -i <SMRAM_dump> -b <SMRAM_base> [-s SMRAM_size] [-f flash_image_dump]"
 
-        print('USAGE: smram_parse.py <SMRAM_dump> [flash_image_dump [SMRAM_base [SMRAM_size]]]')
-        return 0
+    option_list = [
 
-    d = Dumper(sys.argv[1], \
-               fw_image = sys.argv[2] if len(sys.argv) > 2 else None,
-               smram_base = int(sys.argv[3], 16) if len(sys.argv) > 3 else None,
-               smram_size = int(sys.argv[4], 16) if len(sys.argv) > 4 else None)
+        make_option('-i', '--input', dest = 'input', default = None,
+            help = 'file path of smram dump'),
+
+        make_option('-b', '--base', dest = 'base', default = None,
+            help = 'base address of smram'),
+
+        make_option('-f', '--flash', dest = 'flash', default = None,
+            help = 'file path of flash rom'),
+
+        make_option('-s', '--size', dest = 'size', default = None,
+            help = 'size of smram'),
+    ]
+
+    parser = OptionParser(option_list = option_list, usage=usage)
+    (options, args) = parser.parse_args()
+
+    if options.input is None or options.base is None:
+        print('[!] SMRAM path (-i) and base address (-b) must be specified')
+        return -1 
+
+    d = Dumper(options.input, \
+               fw_image = options.flash,
+               smram_base = int(options.base, 16),
+               smram_size = int(options.size, 16) if options.size is not None \
+                              and len(options.size) > 0 else None)
 
     d.dump_smst()
 
