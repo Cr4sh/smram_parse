@@ -7,7 +7,7 @@ SMRAM_SIZE = 0x800000
 EFI_SMM_CPU_PROTOCOL_GUID = '\x97\x6B\x34\xEB\x5F\x97\x9F\x4A\x8B\x22\xF8\xE9\x2B\xB3\xD5\x69'
 
 UEFIDUMP_PATH = './UEFIDump'
-UEFIDUMP_URL = 'https://github.com/LongSoft/UEFITool/releases/tag/NE.A30'
+UEFIDUMP_URL = 'https://github.com/LongSoft/UEFITool/releases/tag/A50'
 
 EFIUTILS_PATH = 'ida-efiutils'
 EFIUTILS_URL = 'https://github.com/snare/ida-efiutils'
