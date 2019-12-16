@@ -27,7 +27,7 @@ FEATURES:
 
 
 USAGE:
-
+  $ git clone --recursive https://github.com/Cr4sh/smram_parse && cd smram_parse
   $ smram_parse.py -i <SMRAM_dump> -b <SMRAM_base> [-s SMRAM_size] [-f flash_image_dump]
 
   Output example: https://raw.githubusercontent.com/Cr4sh/smram_parse/master/EXAMPLE.TXT
