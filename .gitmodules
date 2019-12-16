@@ -1,0 +1,3 @@
+[submodule "ida-efiutils"]
+	path = ida-efiutils
+	url = https://github.com/snare/ida-efiutils
