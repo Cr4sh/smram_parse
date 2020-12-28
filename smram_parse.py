@@ -99,7 +99,7 @@ class FwImage(object):
         print('[+] Unpacking "%s"...\n' % temp_path)
 
         # extract image contents
-        code = os.system('"%s" "%s"' % (UEFIDUMP_PATH, temp_path))
+        code = os.system('%s %s' % (UEFIDUMP_PATH, temp_path))
         if code != 0:
 
             print('WARNING: Error while running %s' % UEFIDUMP_PATH)
