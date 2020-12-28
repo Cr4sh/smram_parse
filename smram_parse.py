@@ -3,12 +3,12 @@ from struct import unpack
 
 SMRAM_SIZE = 0x800000
 
-EFI_SMM_CPU_PROTOCOL_GUID = '\x97\x6B\x34\xEB\x5F\x97\x9F\x4A\x8B\x22\xF8\xE9\x2B\xB3\xD5\x69'
+EFI_SMM_CPU_PROTOCOL_GUID = b'\x97\x6B\x34\xEB\x5F\x97\x9F\x4A\x8B\x22\xF8\xE9\x2B\xB3\xD5\x69'
 
-UEFIDUMP_PATH = '/Users/d_olex/_tmp/UEFIDump'
-UEFIDUMP_URL = 'https://github.com/LongSoft/UEFITool/releases/tag/NE.A30'
+UEFIDUMP_PATH = 'UEFIDump'
+UEFIDUMP_URL = 'https://github.com/LongSoft/UEFITool/releases/tag/A51'
 
-EFIUTILS_PATH = '/Users/d_olex/ida-efiutils'
+EFIUTILS_PATH = 'ida-efiutils'
 EFIUTILS_URL = 'https://github.com/snare/ida-efiutils'
 
 sys.path.append(EFIUTILS_PATH)
@@ -172,7 +172,7 @@ class GuidDb(object):
 
     def load(self, guids):
 
-        _name = lambda n: n[:-5] if n[-5:] == '_GUID' else n
+        _name = lambda n: n[:-5] if n[-5:] == b'_GUID' else n
 
         # load GUID's database from ida-efiutils
         self.guids.update(map(lambda it: ( guid_str(tuple(it[1])), \
@@ -232,7 +232,7 @@ class Dumper(object):
         while offset - ptr < 0x100000:
 
             # check for IMAGE_DOS_HEADER signature
-            if self.data[ptr : ptr + 2] == 'MZ':
+            if self.data[ptr : ptr + 2] == b'MZ':
 
                 return self.from_offset(ptr)
 
@@ -261,7 +261,7 @@ class Dumper(object):
     def dump_smst(self):
 
         # check for EFI_SMM_SYSTEM_TABLE signature
-        ptr = self.data.find('SMST\0\0\0\0')
+        ptr = self.data.find(b'SMST\0\0\0\0')
         if ptr != -1:
 
             print('[+] EFI_SMM_SYSTEM_TABLE2 is at 0x%x' % self.from_offset(ptr))
@@ -275,14 +275,14 @@ class Dumper(object):
         while ptr < len(self.data):
 
             # check for DOS image header
-            if self.data[ptr : ptr + 2] == 'MZ':
+            if self.data[ptr : ptr + 2] == b'MZ':
 
                 # read e_lfanew field
                 offset = unpack('I', self.data[ptr + IMAGE_DOS_HEADER_e_lfanew : \
                                                ptr + IMAGE_DOS_HEADER_e_lfanew + 4])[0] + ptr
 
                 # check for PE image header
-                if self.data[offset : offset + 2] == 'PE':
+                if self.data[offset : offset + 2] == b'PE':
 
                     addr = self.from_offset(ptr)
                     name = self.image_name(addr)
@@ -313,8 +313,7 @@ class Dumper(object):
             for i in range(len(sig)):
 
                 # check for signature at each 100h offset of SMRAM
-                if sig[i] is not None and sig[i] != self.data[ptr + i]:
-
+                if sig[i] is not None and sig[i] != chr(self.data[ptr + i]):
                     found = False
                     break
 
@@ -333,7 +332,7 @@ class Dumper(object):
         while ptr < self.smram_size - 0x100:
 
             # check for 'prte' signature
-            if self.data[ptr : ptr + 4] == 'prte':
+            if self.data[ptr : ptr + 4] == b'prte':
 
                 flink, blink, guid, info = parse(ptr + 8)
 
@@ -405,7 +404,7 @@ class Dumper(object):
         while ptr < self.smram_size - 0x100:
 
             # check for 'DBRC' signature
-            if self.data[ptr : ptr + 4] == 'DBRC':
+            if self.data[ptr : ptr + 4] == b'DBRC':
 
                 flink, blink, _, _, _, _ = parse(ptr + 8)
 
@@ -440,7 +439,7 @@ class Dumper(object):
                 while True:
                     
                     # find offset of 0x504 qword that indicates SW SMI handler type
-                    offs = entry_data.find('\x04\x05\x00\x00\x00\x00\x00\x00')                
+                    offs = entry_data.find(b'\x04\x05\x00\x00\x00\x00\x00\x00')
                     if offs == -1:
 
                         break
@@ -496,7 +495,7 @@ class Dumper(object):
 
             flink, blink, func = parse(entry + 8)
 
-            if self.data[entry : entry + 4] == 'smih':
+            if self.data[entry : entry + 4] == b'smih':
 
                 image = self.image_by_addr(func)
                 image_name = self.image_name(image)
@@ -516,7 +515,7 @@ class Dumper(object):
         while ptr < self.smram_size - 0x100:
 
             # check for 'smie' signature
-            if self.data[ptr : ptr + 4] == 'smie':
+            if self.data[ptr : ptr + 4] == b'smie':
                 
                 flink, blink, guid, h_flink, h_blink = parse(ptr + 8)
 
@@ -551,7 +550,7 @@ class Dumper(object):
                 print('ERROR: Invalid smie entry at 0x%x' % entry)
                 return -1
 
-            if self.data[entry : entry + 4] == 'smie' and \
+            if self.data[entry : entry + 4] == b'smie' and \
                self.in_smram(h_flink) and self.in_smram(h_blink):
 
                 guid = guid_parse(guid)
@@ -575,7 +574,7 @@ class Dumper(object):
         while ptr < self.smram_size - 0x100:
 
             # check for 'smie' signature
-            if self.data[ptr : ptr + 4] == 'smih':
+            if self.data[ptr : ptr + 4] == b'smih':
                 
                 flink, blink, func, entry = parse(ptr + 8)
 
