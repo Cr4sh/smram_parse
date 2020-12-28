@@ -71,7 +71,7 @@ class FwImage(object):
 
             # check for PE image file
             m = re.match('Section_PE32_image_\w{8}_\w{4}_\w{4}_\w{4}_\w{12}_(\w+)_body.bin', fname)
-            if m:                
+            if m:
 
                 image_name = m.group(1).strip()
                 if len(image_name) == 0: continue
@@ -127,9 +127,9 @@ class FwImage(object):
                                   IMAGE_DOS_HEADER_e_lfanew + 4])[0]
 
         offset += IMAGE_NT_HEADERS64_OptionalHeader
-                  
+
         get_field = lambda t, s, o: \
-                    unpack(t, data[offset + o : offset + o + s])[0]    
+                    unpack(t, data[offset + o : offset + o + s])[0]
 
         # read optional header fields
         return ( get_field('I', 4, IMAGE_OPTIONAL_HEADER64_SizeOfCode),
@@ -149,14 +149,14 @@ class GuidDb(object):
 
         self.guids = {}
 
-        try: 
+        try:
 
             import efiguids
             self.load(efiguids.GUIDs)
 
         except ImportError: pass
 
-        try: 
+        try:
 
             import efiguids_ami
             self.load(efiguids_ami.GUIDs)
@@ -189,7 +189,7 @@ class Dumper(object):
     # helper functions for SMRAM dump
     in_smram = lambda self, addr: addr >= self.smram and addr < self.smram + self.smram_size
     to_offset = lambda self, addr: addr - self.smram
-    from_offset = lambda self, offset: offset + self.smram        
+    from_offset = lambda self, offset: offset + self.smram
 
     has_guid = lambda self, addr, guid: self.data[self.to_offset(addr) : \
                                                   self.to_offset(addr) + self.image_size(addr)].find(guid) \
@@ -197,7 +197,7 @@ class Dumper(object):
 
     def __init__(self, smram_dump, fw_image = None, smram_base = None, smram_size = None):
 
-        self.data = open(smram_dump, 'rb').read()  
+        self.data = open(smram_dump, 'rb').read()
 
         # parse firmware image
         self.fw = FwImage(fw_image)
@@ -206,8 +206,8 @@ class Dumper(object):
         self.guids = GuidDb(guids = GUIDs)
 
         if smram_base is None:
-        
-            self.smram = unpack('Q', self.data[0x10 : 0x18])[0] & 0xff400000    
+
+            self.smram = unpack('Q', self.data[0x10 : 0x18])[0] & 0xff400000
 
         else:
 
@@ -221,7 +221,7 @@ class Dumper(object):
 
             self.smram_size = smram_size
 
-        print('[+] SMRAM is at 0x%x:%x' % (self.smram, self.smram + self.smram_size - 1)) 
+        print('[+] SMRAM is at 0x%x:%x' % (self.smram, self.smram + self.smram_size - 1))
 
     # get image base by address inside of it
     def image_by_addr(self, addr):
@@ -238,7 +238,7 @@ class Dumper(object):
 
             ptr -= 0x10
 
-    def image_size(self, addr):        
+    def image_size(self, addr):
 
         offset = self.to_offset(self.image_by_addr(addr))
 
@@ -250,13 +250,13 @@ class Dumper(object):
                   IMAGE_OPTIONAL_HEADER64_SizeOfImage
 
         # read SizeOfImage field
-        return unpack('I', self.data[offset : offset + 4])[0]  
+        return unpack('I', self.data[offset : offset + 4])[0]
 
     def image_name(self, addr):
 
         offset = self.to_offset(addr)
 
-        return self.fw.image_name(self.data[offset : offset + HEADERS_SIZE])  
+        return self.fw.image_name(self.data[offset : offset + HEADERS_SIZE])
 
     def dump_smst(self):
 
@@ -322,9 +322,9 @@ class Dumper(object):
                 print('CPU %d: 0x%x' % (num, self.from_offset(ptr)))
                 num += 1
 
-            ptr += 0x100   
+            ptr += 0x100
 
-    def dump_protocols(self):  
+    def dump_protocols(self):
 
         first_entry, ptr = None, 0
         parse = lambda offset: unpack('QQ16sQ', self.data[offset : offset + 0x28])
@@ -349,7 +349,7 @@ class Dumper(object):
         if first_entry is None:
 
             print('\nERROR: Unable to find prte entry')
-            return -1 
+            return -1
 
         print('\nSMM PROTOCOLS:\n')
 
@@ -367,7 +367,7 @@ class Dumper(object):
                 return -1
 
             # check for protocol information
-            if self.in_smram(info):        
+            if self.in_smram(info):
 
                 # get protocol information
                 offset = self.to_offset(info)
@@ -391,14 +391,14 @@ class Dumper(object):
             entry = self.to_offset(flink) - 8
             if entry == first_entry: break
 
-    def dump_sw_smi_handlers(self):  
+    def dump_sw_smi_handlers(self):
 
         first_entry, ptr = None, 0
 
         default_offs = 0x10
         format_offs, format = default_offs, 'QQ%dsQQQ' % default_offs
 
-        parse = lambda offset: unpack(format, 
+        parse = lambda offset: unpack(format,
                                self.data[offset : offset + format_offs + (5 * 8)])
 
         while ptr < self.smram_size - 0x100:
@@ -421,7 +421,7 @@ class Dumper(object):
         if first_entry is None:
 
             print('\nERROR: Unable to find DBRC entry')
-            return -1 
+            return -1
 
         print('\nSW SMI HANDLERS:\n')
 
@@ -434,10 +434,10 @@ class Dumper(object):
             if format_offs == default_offs:
 
                 prev_offs = 0
-                entry_data = self.data[entry + (8 * 3) : entry + 0x100]                
+                entry_data = self.data[entry + (8 * 3) : entry + 0x100]
 
                 while True:
-                    
+
                     # find offset of 0x504 qword that indicates SW SMI handler type
                     offs = entry_data.find(b'\x04\x05\x00\x00\x00\x00\x00\x00')
                     if offs == -1:
@@ -445,7 +445,7 @@ class Dumper(object):
                         break
 
                     val = unpack('Q', entry_data[offs + 8 : offs + (8 * 2)])[0]
-                    if self.in_smram(val):                                                
+                    if self.in_smram(val):
 
                         # update list entry format
                         offs += prev_offs
@@ -465,11 +465,11 @@ class Dumper(object):
                 return -1
 
             # check for SW SMI handler information
-            if unk == 0x504 and self.in_smram(func) and smi >= 0 and smi <= 255:    
+            if unk == 0x504 and self.in_smram(func) and smi >= 0 and smi <= 255:
 
                 if entry in known_handlers:
 
-                    break    
+                    break
 
                 # get image information
                 image = self.image_by_addr(func)
@@ -488,7 +488,7 @@ class Dumper(object):
 
     def _dump_handlers(self, head):
 
-        parse = lambda offset: unpack('QQQ', self.data[offset : offset + 0x18])  
+        parse = lambda offset: unpack('QQQ', self.data[offset : offset + 0x18])
         entry = head
 
         while True:
@@ -505,18 +505,18 @@ class Dumper(object):
                        image_name if image_name is not None else '0x%x' % image))
 
             entry = self.to_offset(flink) - 8
-            if entry == head: break 
+            if entry == head: break
 
-    def dump_smi_handlers(self):          
+    def dump_smi_handlers(self):
 
         first_entry, ptr = None, 0
-        parse = lambda offset: unpack('QQ16sQQ', self.data[offset : offset + 0x30])    
+        parse = lambda offset: unpack('QQ16sQQ', self.data[offset : offset + 0x30])
 
         while ptr < self.smram_size - 0x100:
 
             # check for 'smie' signature
             if self.data[ptr : ptr + 4] == b'smie':
-                
+
                 flink, blink, guid, h_flink, h_blink = parse(ptr + 8)
 
                 # check for valid EFI_LIST_ENTRY
@@ -533,7 +533,7 @@ class Dumper(object):
         if first_entry is None:
 
             print('\nERROR: Unable to find smie entry')
-            return -1 
+            return -1
 
         print('\nSMI HANDLERS:\n')
 
@@ -564,18 +564,18 @@ class Dumper(object):
                 print('')
 
             entry = self.to_offset(flink) - 8
-            if entry == first_entry: break 
+            if entry == first_entry: break
 
-    def dump_root_smi_handlers(self):          
+    def dump_root_smi_handlers(self):
 
         first_entry, ptr = None, 0
-        parse = lambda offset: unpack('QQQQ', self.data[offset : offset + 0x20])    
+        parse = lambda offset: unpack('QQQQ', self.data[offset : offset + 0x20])
 
         while ptr < self.smram_size - 0x100:
 
             # check for 'smie' signature
             if self.data[ptr : ptr + 4] == b'smih':
-                
+
                 flink, blink, func, entry = parse(ptr + 8)
 
                 # check for valid EFI_LIST_ENTRY
@@ -592,7 +592,7 @@ class Dumper(object):
         if first_entry is None:
 
             print('\nERROR: Unable to find smih entry')
-            return -1 
+            return -1
 
         print('\nROOT SMI HANDLERS:\n')
 
@@ -624,7 +624,7 @@ def main():
     # show SMI handlers information
     d.dump_sw_smi_handlers()
     d.dump_root_smi_handlers()
-    d.dump_smi_handlers()    
+    d.dump_smi_handlers()
 
     print('\nNOTES:')
     print('\n * - SW SMI handler uses ReadSaveState()/WriteSaveState()\n')
@@ -632,7 +632,7 @@ def main():
     return 0
 
 if __name__ == '__main__':
-    
+
     sys.exit(main())
 
 #
