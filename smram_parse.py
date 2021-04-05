@@ -22,6 +22,9 @@ IMAGE_OPTIONAL_HEADER64_SizeOfInitializedData   = 0x08
 IMAGE_OPTIONAL_HEADER64_AddressOfEntryPoint     = 0x10
 IMAGE_OPTIONAL_HEADER64_SizeOfImage             = 0x38
 
+MAX_IMAGE_SIZE = 0x100000
+PAGE_SIZE = 0x1000
+
 # helper functions for EFI_GUID
 guid_parse = lambda data: unpack('=IHHBBBBBBBB', data)
 guid_str = lambda guid: '%.8X-%.4X-%.4X-%.2X%.2X%.2X%.2X%.2X%.2X%.2X%.2X' % guid
@@ -128,20 +131,25 @@ class FwImage(object):
 
         offset += IMAGE_NT_HEADERS64_OptionalHeader
                   
-        get_field = lambda t, s, o: \
-                    unpack(t, data[offset + o : offset + o + s])[0]    
+        get_field = lambda field: \
+                    unpack('I', data[offset + field : offset + field + 4])[0]    
 
-        # read optional header fields
-        return ( get_field('I', 4, IMAGE_OPTIONAL_HEADER64_SizeOfCode),
-                 get_field('I', 4, IMAGE_OPTIONAL_HEADER64_SizeOfInitializedData),
-                 get_field('I', 4, IMAGE_OPTIONAL_HEADER64_AddressOfEntryPoint),
-                 get_field('I', 4, IMAGE_OPTIONAL_HEADER64_SizeOfImage) )
+        # read optional header fields and use them to identify an image
+        return ( get_field(IMAGE_OPTIONAL_HEADER64_SizeOfCode),
+                 get_field(IMAGE_OPTIONAL_HEADER64_SizeOfInitializedData),
+                 get_field(IMAGE_OPTIONAL_HEADER64_AddressOfEntryPoint),
+                 get_field(IMAGE_OPTIONAL_HEADER64_SizeOfImage) )
 
     def image_name(self, data):
+        
+        try: 
 
-        # find image name by image info
-        try: return self.data[self.image_info(data)]
-        except KeyError: return None
+            # find image name by image info
+            return self.data[self.image_info(data)]
+
+        except KeyError: 
+
+            return None
 
 class GuidDb(object):
 
@@ -229,12 +237,19 @@ class Dumper(object):
         offset = self.to_offset(addr)
         ptr = offset & 0xfffffff0
 
-        while offset - ptr < 0x100000:
+        while offset - ptr < MAX_IMAGE_SIZE:
 
             # check for IMAGE_DOS_HEADER signature
             if self.data[ptr : ptr + 2] == 'MZ':
 
-                return self.from_offset(ptr)
+                # read e_lfanew field
+                e_lfanew = unpack('I', self.data[ptr + IMAGE_DOS_HEADER_e_lfanew : \
+                                                 ptr + IMAGE_DOS_HEADER_e_lfanew + 4])[0]
+
+                # check for PE image header
+                if e_lfanew < PAGE_SIZE and self.data[ptr + e_lfanew : ptr + e_lfanew + 2] == 'PE':
+
+                    return self.from_offset(ptr)
 
             ptr -= 0x10
 
@@ -253,6 +268,10 @@ class Dumper(object):
         return unpack('I', self.data[offset : offset + 4])[0]  
 
     def image_name(self, addr):
+
+        if addr is None:
+
+            return '<UNKNOWN>'
 
         offset = self.to_offset(addr)
 
@@ -278,11 +297,11 @@ class Dumper(object):
             if self.data[ptr : ptr + 2] == 'MZ':
 
                 # read e_lfanew field
-                offset = unpack('I', self.data[ptr + IMAGE_DOS_HEADER_e_lfanew : \
-                                               ptr + IMAGE_DOS_HEADER_e_lfanew + 4])[0] + ptr
+                e_lfanew = unpack('I', self.data[ptr + IMAGE_DOS_HEADER_e_lfanew : \
+                                                 ptr + IMAGE_DOS_HEADER_e_lfanew + 4])[0] + ptr
 
                 # check for PE image header
-                if self.data[offset : offset + 2] == 'PE':
+                if self.data[e_lfanew : e_lfanew + 2] == 'PE':
 
                     addr = self.from_offset(ptr)
                     name = self.image_name(addr)
@@ -383,7 +402,7 @@ class Dumper(object):
                     # get image information
                     image = self.image_by_addr(addr)
                     image_name = self.image_name(image)
-                    image_name = image_name if image_name is not None else '0x%X' % image
+                    image_name = image_name if image_name is not None else '0x%x' % image
 
                     print('0x%x: addr = 0x%x, image = %s, guid = %s' % \
                           (self.from_offset(entry), addr, _align(image_name),
